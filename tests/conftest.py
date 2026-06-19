@@ -3,6 +3,7 @@ import os
 from playwright.sync_api import Playwright
 from dotenv import load_dotenv
 from src.pet_utils import Pet
+import uuid
 
 load_dotenv()
 
@@ -30,3 +31,7 @@ def init_pet(pet: Pet):
         response = pet.create_pet('/v2/pet', data=pet_data.__dict__).json()
         return response
     yield _init
+
+@pytest.fixture
+def generate_pet_id():
+    yield int(uuid.uuid4().int % 10000)
