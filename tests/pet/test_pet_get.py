@@ -25,7 +25,7 @@ def test_get_not_existing_pet(pet: Pet, generate_pet_id, pet_cleanup):
     pet_id = generate_pet_id
     pet_cleanup(pet_id)
 
-    response = pet.get_pet(f"v2/pet/{pet_id}")
+    response = pet.get_pet(f"/v2/pet/{pet_id}")
     response_body = response.json()
 
     assert response.status == 404
