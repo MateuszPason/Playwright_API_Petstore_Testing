@@ -1,3 +1,6 @@
+import mimetypes
+import os
+
 from playwright.sync_api import APIRequestContext
 
 
@@ -22,3 +25,16 @@ class Pet:
         if status is not None:
             params["status"] = status
         return self._request.get(endpoint, params=params, **kwargs)
+
+    def upload_image(self, endpoint, file_path=None, additional_metadata=None, **kwargs):
+        multipart = {}
+        if file_path is not None:
+            with open(file_path, "rb") as f:
+                multipart["file"] = {
+                    "name": os.path.basename(file_path),
+                    "mimeType": mimetypes.guess_type(file_path)[0] or "application/octet-stream",
+                    "buffer": f.read(),
+                }
+        if additional_metadata is not None:
+            multipart["additionalMetadata"] = additional_metadata
+        return self._request.post(endpoint, multipart=multipart, **kwargs)
