@@ -9,7 +9,7 @@ import pytest
 )
 def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status):
     
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     CREATE_PET.status = status
     init_pet(CREATE_PET)

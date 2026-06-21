@@ -4,7 +4,7 @@ from payloads.pet_payloads import CREATE_PET, UPDATE_PET
 
 # @pytest.mark.regression
 def test_petet_lifecycle(pet: Pet, pet_cleanup, generate_pet_id, init_pet):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     UPDATE_PET.id = pet_id
 

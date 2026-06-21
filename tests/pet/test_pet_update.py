@@ -3,7 +3,7 @@ from src.pet_utils import Pet
 
 
 def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     init_pet(CREATE_PET)
     UPDATE_PET.id = pet_id
@@ -20,7 +20,7 @@ def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id):
 
 
 def test_invalid_type_data_field(pet: Pet, init_pet, generate_pet_id):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     init_pet(CREATE_PET)
     UPDATE_PET.id = pet_id
