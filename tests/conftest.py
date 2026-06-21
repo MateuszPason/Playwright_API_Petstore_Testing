@@ -3,8 +3,11 @@ import os
 from playwright.sync_api import Playwright, APIRequestContext
 from dotenv import load_dotenv
 from src.pet_utils import Pet
+from src.store_utils import Store
 import uuid
 from tests.payloads.pet_payloads import PetPayload
+import secrets
+import string
 
 load_dotenv()
 
@@ -21,6 +24,10 @@ def pet(api_request_context: APIRequestContext):
     return Pet(api_request_context)
 
 @pytest.fixture
+def store(api_request_context: APIRequestContext):
+    return Store(api_request_context)
+
+@pytest.fixture
 def pet_cleanup(pet: Pet):
     def _cleanup(pet_id: int):
         return pet.delete_pet(f'/v2/pet/{pet_id}')
@@ -34,4 +41,13 @@ def init_pet(pet: Pet):
 
 @pytest.fixture
 def generate_pet_id():
-    return int(uuid.uuid4().int % 100000)
+    def _generate():
+        return int(uuid.uuid4().int % 100000)
+    return _generate
+
+@pytest.fixture
+def generate_random_string(length=8):
+    def _generate():
+        alphabet = string.ascii_letters + string.digits
+        return "".join(secrets.choice(alphabet) for _ in range(length))
+    return _generate
