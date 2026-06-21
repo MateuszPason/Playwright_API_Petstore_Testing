@@ -3,7 +3,7 @@ from tests.payloads.pet_payloads import CREATE_PET
 
 
 def test_add_a_new_pet_to_the_store_returns_200(generate_pet_id, init_pet, pet_cleanup):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     response = init_pet(CREATE_PET)
 

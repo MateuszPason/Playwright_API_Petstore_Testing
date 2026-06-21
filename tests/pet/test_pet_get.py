@@ -3,8 +3,8 @@ from src.pet_utils import Pet
 
 
 def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup):
-    pet_id = generate_pet_id
-    CREATE_PET.id = generate_pet_id
+    pet_id = generate_pet_id()
+    CREATE_PET.id = pet_id
     init_pet(CREATE_PET)
 
     response = pet.get_pet(f"/v2/pet/{pet_id}")
@@ -22,7 +22,7 @@ def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup):
 
 
 def test_get_not_existing_pet(pet: Pet, generate_pet_id, pet_cleanup):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     pet_cleanup(pet_id)
 
     response = pet.get_pet(f"/v2/pet/{pet_id}")

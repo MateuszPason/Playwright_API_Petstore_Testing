@@ -3,7 +3,7 @@ from src.pet_utils import Pet
 
 
 def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     created_pet = init_pet(CREATE_PET)
     created_pet_body = created_pet.json()
@@ -18,7 +18,7 @@ def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup):
 
 
 def test_delete_not_existing_pet(pet: Pet, generate_pet_id, pet_cleanup):
-    pet_id = generate_pet_id
+    pet_id = generate_pet_id()
 
     get_response = pet.get_pet(f"v2/pet/{pet_id}")
 
