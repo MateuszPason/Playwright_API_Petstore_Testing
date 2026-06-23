@@ -1,5 +1,4 @@
 from src.store_utils import Store
-from datetime import datetime, timezone
 import pytest
 
 def test_get_an_existing_order(store: Store, generate_order_id, generate_pet_id, ship_date, create_order, order_cleanup):

@@ -1,5 +1,4 @@
 from src.store_utils import Store
-from datetime import datetime, timezone
 import pytest
 
 def test_successful_order_delete(store: Store, generate_order_id, generate_pet_id, ship_date, create_order):
