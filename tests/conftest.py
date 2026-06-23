@@ -8,6 +8,7 @@ import uuid
 from tests.payloads.pet_payloads import PetPayload
 import secrets
 import string
+from datetime import datetime, timezone
 
 load_dotenv()
 
@@ -51,3 +52,25 @@ def generate_random_string(length=8):
         alphabet = string.ascii_letters + string.digits
         return "".join(secrets.choice(alphabet) for _ in range(length))
     return _generate
+
+@pytest.fixture
+def generate_order_id():
+    def _generate():
+        return int(uuid.uuid4().int % 990) + 11
+    return _generate
+
+@pytest.fixture
+def ship_date():
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "+0000")
+
+@pytest.fixture
+def create_order(store: Store):
+    def _init(order_id, pet_id, quantity, ship_date, status, complete):
+        return store.place_an_order(order_id, pet_id, quantity, ship_date, status, complete)
+    return _init
+
+@pytest.fixture
+def order_cleanup(store: Store):
+    def _cleanup(order_id):
+        return store.delete_an_order(order_id)
+    return _cleanup
