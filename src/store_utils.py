@@ -9,8 +9,8 @@ class Store:
         return self._request.get(endpoint, **kwargs)
 
     def get_order_by_id(self, order_id, **kwargs):
-        if not isinstance(order_id, int) or order_id <= 0:
-            raise ValueError("Order ID should be greater than zero")
+        if not isinstance(order_id, int) or isinstance(order_id, bool) or order_id <= 0:
+            raise ValueError("Incorrect order_id | Expected int value > 0")
         return self._request.get(f"/v2/store/order/{order_id}", **kwargs)
 
     def place_an_order(
@@ -46,3 +46,8 @@ class Store:
             },
             **kwargs,
         )
+
+    def delete_an_order(self, order_id):
+        if not isinstance(order_id, int) or isinstance(order_id, bool) or order_id <= 0:
+            raise ValueError("Incorrect order_id | Expected int value > 0")
+        return self._request.delete(f"/v2/store/order/{order_id}")

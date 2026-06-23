@@ -8,6 +8,7 @@ import uuid
 from tests.payloads.pet_payloads import PetPayload
 import secrets
 import string
+from datetime import datetime, timezone
 
 load_dotenv()
 
@@ -58,8 +59,18 @@ def generate_order_id():
         return int(uuid.uuid4().int % 990) + 11
     return _generate
 
-@pytest.fixture()
+@pytest.fixture
+def ship_date():
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "+0000")
+
+@pytest.fixture
+def create_order(store: Store):
+    def _init(order_id, pet_id, quantity, ship_date, status, complete):
+        return store.place_an_order(order_id, pet_id, quantity, ship_date, status, complete)
+    return _init
+
+@pytest.fixture
 def order_cleanup(store: Store):
     def _cleanup(order_id):
-        return store._request.delete(f"v2/store/order/{order_id}")
+        return store.delete_an_order(order_id)
     return _cleanup
