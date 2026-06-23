@@ -51,3 +51,15 @@ def generate_random_string(length=8):
         alphabet = string.ascii_letters + string.digits
         return "".join(secrets.choice(alphabet) for _ in range(length))
     return _generate
+
+@pytest.fixture
+def generate_order_id():
+    def _generate():
+        return int(uuid.uuid4().int % 990) + 11
+    return _generate
+
+@pytest.fixture()
+def order_cleanup(store: Store):
+    def _cleanup(order_id):
+        return store._request.delete(f"v2/store/order/{order_id}")
+    return _cleanup
