@@ -31,13 +31,13 @@ def store(api_request_context: APIRequestContext):
 @pytest.fixture
 def pet_cleanup(pet: Pet):
     def _cleanup(pet_id: int):
-        return pet.delete_pet(f'/v2/pet/{pet_id}')
+        return pet.delete_pet(pet_id)
     return _cleanup
 
 @pytest.fixture
 def init_pet(pet: Pet):
     def _init(pet_data: PetPayload):
-        return pet.create_pet('/v2/pet', data=pet_data.__dict__)
+        return pet.create_pet(data=pet_data.__dict__)
     return _init
 
 @pytest.fixture

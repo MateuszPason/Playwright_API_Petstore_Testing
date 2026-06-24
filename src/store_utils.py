@@ -5,8 +5,8 @@ class Store:
     def __init__(self, api_request_context: APIRequestContext):
         self._request = api_request_context
 
-    def get_pet_inventories_in_store(self, endpoint, **kwargs):
-        return self._request.get(endpoint, **kwargs)
+    def get_pet_inventories_in_store(self, **kwargs):
+        return self._request.get("/v2/store/inventory", **kwargs)
 
     def get_order_by_id(self, order_id, **kwargs):
         if not isinstance(order_id, int) or isinstance(order_id, bool) or order_id <= 0:

@@ -14,7 +14,7 @@ def test_existing_status(
 
     init_pet(CREATE_PET)
 
-    store_response = store.get_pet_inventories_in_store("/v2/store/inventory")
+    store_response = store.get_pet_inventories_in_store()
     store_response_body = store_response.json()
 
     assert store_response.ok
@@ -26,7 +26,7 @@ def test_existing_status(
 def test_non_existing_status(store: Store, generate_random_string):
     non_existing_status = generate_random_string()
 
-    store_response = store.get_pet_inventories_in_store("/v2/store/inventory")
+    store_response = store.get_pet_inventories_in_store()
     store_response_body = store_response.json()
 
     assert store_response.ok
@@ -50,7 +50,7 @@ def test_accumulate_pets_with_same_status(
     init_pet(pet_payload_1)
     init_pet(pet_payload_2)
 
-    store_response = store.get_pet_inventories_in_store("/v2/store/inventory")
+    store_response = store.get_pet_inventories_in_store()
     store_response_body = store_response.json()
 
     assert store_response_body[pet_status] == 2
@@ -59,7 +59,7 @@ def test_accumulate_pets_with_same_status(
     pet_cleanup(pet_id_two)
 
 def test_response_structure(store: Store):
-    store_response = store.get_pet_inventories_in_store("/v2/store/inventory")
+    store_response = store.get_pet_inventories_in_store()
     store_response_body = store_response.json()
 
     assert type(store_response_body) is dict
@@ -67,8 +67,22 @@ def test_response_structure(store: Store):
     assert all(isinstance(value, int) for value in store_response_body.values())
     assert all([0 < value for value in store_response_body.values()])
 
-def test_consistent_response(store: Store):
-    first_store_response_body = store.get_pet_inventories_in_store("/v2/store/inventory").json()
-    second_store_response_body = store.get_pet_inventories_in_store("/v2/store/inventory").json()
+def test_consistent_response(
+    store: Store, init_pet, pet_cleanup, generate_pet_id, generate_random_string
+):
+    pet_id = generate_pet_id()
+    unique_status = generate_random_string()
 
-    assert first_store_response_body == second_store_response_body
+    pet_payload = deepcopy(CREATE_PET)
+    pet_payload.id = pet_id
+    pet_payload.status = unique_status
+
+    init_pet(pet_payload)
+
+    first_store_response_body = store.get_pet_inventories_in_store().json()
+    second_store_response_body = store.get_pet_inventories_in_store().json()
+
+    assert first_store_response_body.get(unique_status) == 1
+    assert second_store_response_body.get(unique_status) == 1
+
+    pet_cleanup(pet_id)
