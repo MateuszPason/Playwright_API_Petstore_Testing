@@ -1,9 +1,9 @@
 from src.pet_utils import Pet
-from payloads.pet_payloads import CREATE_PET, UPDATE_PET
+from tests.payloads.pet_payloads import CREATE_PET, UPDATE_PET
 
 
 # @pytest.mark.regression
-def test_petet_lifecycle(pet: Pet, generate_pet_id):
+def test_pet_lifecycle(pet: Pet, generate_pet_id):
     pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
     UPDATE_PET.id = pet_id
