@@ -8,7 +8,7 @@ def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id):
     init_pet(CREATE_PET)
     UPDATE_PET.id = pet_id
 
-    update_response = pet.update_pet("/v2/pet", data=UPDATE_PET.__dict__)
+    update_response = pet.update_pet(data=UPDATE_PET.__dict__)
     update_response_body = update_response.json()
 
     assert update_response_body["id"] == pet_id
@@ -27,6 +27,6 @@ def test_invalid_type_data_field(pet: Pet, init_pet, generate_pet_id):
     UPDATE_PET.photoUrls = (
         ""  # Passing invalid data type | Expected: list of string | Actual: string
     )
-    response = pet.update_pet("/v2/pet", data=UPDATE_PET.__dict__)
+    response = pet.update_pet(data=UPDATE_PET.__dict__)
 
     assert response.status == 500

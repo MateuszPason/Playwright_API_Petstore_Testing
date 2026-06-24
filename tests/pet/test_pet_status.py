@@ -14,7 +14,7 @@ def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status
     CREATE_PET.status = status
     init_pet(CREATE_PET)
 
-    available_pets = pet.get_pet_by_status("/v2/pet/findByStatus", status)
+    available_pets = pet.get_pet_by_status(status)
     available_pets_body = available_pets.json()
 
     pet_to_assert = next((pet for pet in available_pets_body if pet.get("id") == pet_id), None)
@@ -29,7 +29,7 @@ def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status
         [None, "Not existing status"]
 )
 def test_invalid_status(pet: Pet, status):
-    response = pet.get_pet_by_status("/v2/pet/findByStatus", status)
+    response = pet.get_pet_by_status(status)
     response_body = response.json()
 
     assert response.ok
