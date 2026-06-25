@@ -1,4 +1,4 @@
-name: PetStore endpoints validation
+name: Petstore API - Test Suite
 
 on:
     push:
@@ -27,7 +27,7 @@ jobs:
                 playwright install chromium --with-deps
 
             - name: Run tests
-              run: pytest --html=report.html --base-url
+              run: pytest --html=report.html
 
             - name: Upload test report
               uses: actions/upload-artifact@v4
