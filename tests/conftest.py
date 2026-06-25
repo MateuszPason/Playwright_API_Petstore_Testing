@@ -1,7 +1,5 @@
 import pytest
-import os
 from playwright.sync_api import Playwright, APIRequestContext
-from dotenv import load_dotenv
 from src.pet_utils import Pet
 from src.store_utils import Store
 import uuid
@@ -10,12 +8,10 @@ import secrets
 import string
 from datetime import datetime, timezone
 
-load_dotenv()
-
 @pytest.fixture(scope='session')
-def api_request_context(playwright: Playwright):
+def api_request_context(playwright: Playwright, base_url: str):
     api_context = playwright.request.new_context(
-        base_url= os.getenv('BASE_URL')
+        base_url= base_url
     )
     yield api_context
     api_context.dispose()

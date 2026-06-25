@@ -3,6 +3,7 @@ from tests.payloads.pet_payloads import CREATE_PET
 import pytest
 
 
+@pytest.mark.regression
 @pytest.mark.parametrize(
         "status",
         ["available", "pending", "sold"]
@@ -24,6 +25,7 @@ def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status
 
     pet_cleanup(pet_id)
 
+@pytest.mark.regression
 @pytest.mark.parametrize(
         "status",
         [None, "Not existing status"]

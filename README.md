@@ -1,5 +1,7 @@
 # Playwright API Petstore Testing
 
+[![PetStore endpoints validation](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml/badge.svg)](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml)
+
 Automated API test suite for the [Swagger Petstore](https://petstore.swagger.io/) REST API, built with [Playwright](https://playwright.dev/python/) and [pytest](https://docs.pytest.org/).
 
 ## Overview
@@ -30,7 +32,10 @@ This project validates the Swagger Petstore API across both the `/v2/pet` and `/
 │       ├── test_pet_status.py     # GET /v2/pet/findByStatus
 │       └── test_pet_update.py     # PUT /v2/pet
 │   └── store/
-│       └── test_store_get.py     # GET /v2/store/inventory
+│       ├── test_store_delete_order.py    # DELETE /v2/store/order/{orderId}
+│       ├── test_store_get.py             # GET /v2/store/inventory
+│       ├── test_store_get_order.py       # GET /v2/store/order/{orderId}
+│       └── test_store_place_an_order.py  # POST /v2/store/order
 ├── .env                       # Environment variables (not committed)
 ├── .gitignore
 └── requirements.txt
@@ -122,6 +127,9 @@ pytest -v --log-cli-level=INFO
 | `test_pet_image_upload.py` | `POST /v2/pet/{petId}/uploadImage` | JPG and PNG uploads (200), no file provided (415) |
 | `test_pet_lifecycle.py` | Multiple | Full end-to-end: create → update → delete → verify deletion |
 | `test_store_get.py` | `GET /v2/store/inventory` | Inventory contains created statuses, unknown statuses are absent, repeated inventory calls are stable |
+| `test_store_get_order.py` | `GET /v2/store/order/{orderId}` | Existing order (200), non-existing order (404), invalid order ID (ValueError) |
+| `test_store_place_an_order.py` | `POST /v2/store/order` | Successful placement across all status/complete combos, invalid order ID / pet ID / quantity / ship date / status / complete (ValueError) |
+| `test_store_delete_order.py` | `DELETE /v2/store/order/{orderId}` | Successful delete (200), delete non-existing order (404), invalid order ID (ValueError) |
 
 ## Key Components
 
@@ -142,7 +150,10 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 
 | Method | HTTP Verb | Description |
 |--------|-----------|-------------|
-| `get_pet_inventories_in_store(endpoint)` | GET | Retrieve store inventory counts |
+| `get_pet_inventories_in_store(**kwargs)` | GET | Retrieve store inventory counts |
+| `get_order_by_id(order_id, **kwargs)` | GET | Retrieve a store order by ID |
+| `place_an_order(order_id, pet_id, quantity, ship_date, status, complete, **kwargs)` | POST | Place a new store order with input validation |
+| `delete_an_order(order_id)` | DELETE | Delete a store order by ID |
 
 ### Fixtures (`tests/conftest.py`)
 
@@ -155,6 +166,10 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `init_pet` | function | Helper to create a pet from a `PetPayload` |
 | `pet_cleanup` | function | Helper to delete a pet by ID |
 | `generate_random_string` | function | Generates random strings for pet status and inventory tests |
+| `generate_order_id` | function | Generates a random integer order ID (11–1000) |
+| `ship_date` | function | Returns current UTC timestamp in ISO-8601 format for use in order payloads |
+| `create_order` | function | Helper to place a store order via `Store.place_an_order` |
+| `order_cleanup` | function | Helper to delete a store order by ID |
 
 ### Payloads (`tests/payloads/pet_payloads.py`)
 

@@ -2,7 +2,7 @@ from tests.payloads.pet_payloads import CREATE_PET
 from src.pet_utils import Pet
 import pytest
 
-
+@pytest.mark.smoke
 def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id):
     pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
@@ -17,7 +17,7 @@ def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id):
     assert response.ok
     assert response_body["message"] == str(pet_id)
 
-
+@pytest.mark.regression
 def test_delete_not_existing_pet(pet: Pet, generate_pet_id):
     pet_id = generate_pet_id()
 

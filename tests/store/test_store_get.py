@@ -1,8 +1,9 @@
 from src.store_utils import Store
 from tests.payloads.pet_payloads import CREATE_PET
 from copy import deepcopy
+import pytest
 
-
+@pytest.mark.smoke
 def test_existing_status(
     store: Store, generate_pet_id, generate_random_string, init_pet, pet_cleanup
 ):
@@ -22,7 +23,7 @@ def test_existing_status(
 
     pet_cleanup(pet_id)
 
-
+@pytest.mark.regression
 def test_non_existing_status(store: Store, generate_random_string):
     non_existing_status = generate_random_string()
 
@@ -33,6 +34,7 @@ def test_non_existing_status(store: Store, generate_random_string):
     assert non_existing_status not in store_response_body
 
 
+@pytest.mark.regression
 def test_accumulate_pets_with_same_status(
     store: Store, init_pet, pet_cleanup, generate_pet_id, generate_random_string
 ):
@@ -58,6 +60,7 @@ def test_accumulate_pets_with_same_status(
     pet_cleanup(pet_id_one)
     pet_cleanup(pet_id_two)
 
+@pytest.mark.smoke
 def test_response_structure(store: Store):
     store_response = store.get_pet_inventories_in_store()
     store_response_body = store_response.json()
@@ -67,6 +70,7 @@ def test_response_structure(store: Store):
     assert all(isinstance(value, int) for value in store_response_body.values())
     assert all([0 < value for value in store_response_body.values()])
 
+@pytest.mark.regression
 def test_consistent_response(
     store: Store, init_pet, pet_cleanup, generate_pet_id, generate_random_string
 ):
