@@ -1,6 +1,6 @@
 # Playwright API Petstore Testing
 
-[![PetStore endpoints validation](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml/badge.svg)](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml)
+[![Petstore API - Test Suite](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml/badge.svg)](https://github.com/MateuszPason/Playwright_API_Petstore_Testing/actions/workflows/test_suite_run.yml)
 
 Automated API test suite for the [Swagger Petstore](https://petstore.swagger.io/) REST API, built with [Playwright](https://playwright.dev/python/) and [pytest](https://docs.pytest.org/).
 
