@@ -1,4 +1,4 @@
-name: PetStore endpoints validation
+name: Petstore API - Test Suite
 
 on:
     push:
