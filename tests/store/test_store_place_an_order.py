@@ -1,7 +1,7 @@
 from src.store_utils import Store
 import pytest
 
-
+@pytest.mark.regression
 @pytest.mark.parametrize(
     "status, complete",
     [
@@ -32,7 +32,6 @@ def test_successful_order_placement(
 
     order_cleanup(order_id)
 
-
 @pytest.mark.parametrize("incorrect_order_id", [0, -1, True, False, "123", None, 1.5])
 def test_incorrect_order_id(store: Store, incorrect_order_id, generate_pet_id, ship_date):
     pet_id = generate_pet_id()
@@ -40,14 +39,12 @@ def test_incorrect_order_id(store: Store, incorrect_order_id, generate_pet_id, s
     with pytest.raises(ValueError, match="Incorrect order_id"):
         store.place_an_order(incorrect_order_id, pet_id, 1, ship_date, "placed", False)
 
-
 @pytest.mark.parametrize("incorrect_pet_id", [0, -1, True, False, "123", None, 1.5])
 def test_incorrect_pet_id(store: Store, generate_order_id, ship_date, incorrect_pet_id):
     order_id = generate_order_id()
 
     with pytest.raises(ValueError, match="Incorrect pet_id"):
         store.place_an_order(order_id, incorrect_pet_id, 1, ship_date, "placed", False)
-
 
 @pytest.mark.parametrize("incorrect_quantity", [0, -1, True, False, "1", None, 1.5])
 def test_incorrect_quantity(
@@ -61,7 +58,6 @@ def test_incorrect_quantity(
             order_id, pet_id, incorrect_quantity, ship_date, "placed", False
         )
 
-
 @pytest.mark.parametrize("incorrect_ship_date", [None, 123, 1.5, True, False, [], {}])
 def test_ship_date(
     store: Store, generate_order_id, generate_pet_id, incorrect_ship_date
@@ -72,7 +68,6 @@ def test_ship_date(
     with pytest.raises(ValueError, match="Incorrect ship_date"):
         store.place_an_order(order_id, pet_id, 1, incorrect_ship_date, "placed", False)
 
-
 @pytest.mark.parametrize("incorrect_status", ["new", "in_progress"])
 def test_incorrect_status(
     store: Store, generate_order_id, generate_pet_id, ship_date, incorrect_status
@@ -82,7 +77,6 @@ def test_incorrect_status(
 
     with pytest.raises(ValueError, match="Incorrect status"):
         store.place_an_order(order_id, pet_id, 1, ship_date, incorrect_status, False)
-
 
 @pytest.mark.parametrize(
     "incorrect_complete_value", ["1", "0", "True", "False", "", " "]

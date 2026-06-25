@@ -1,7 +1,8 @@
 from tests.payloads.pet_payloads import CREATE_PET
 from src.pet_utils import Pet
+import pytest
 
-
+@pytest.mark.smoke
 def test_add_a_new_pet_to_the_store_returns_200(pet: Pet, generate_pet_id, pet_cleanup):
     pet_id = generate_pet_id()
     CREATE_PET.id = pet_id

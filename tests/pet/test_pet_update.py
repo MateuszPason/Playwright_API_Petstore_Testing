@@ -1,7 +1,9 @@
 from tests.payloads.pet_payloads import CREATE_PET, UPDATE_PET
 from src.pet_utils import Pet
+import pytest
 
 
+@pytest.mark.smoke
 def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id):
     pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
@@ -18,7 +20,7 @@ def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id):
     assert update_response_body["tags"] == UPDATE_PET.tags
     assert update_response_body["status"] == UPDATE_PET.status
 
-
+@pytest.mark.regression
 def test_invalid_type_data_field(pet: Pet, init_pet, generate_pet_id):
     pet_id = generate_pet_id()
     CREATE_PET.id = pet_id
