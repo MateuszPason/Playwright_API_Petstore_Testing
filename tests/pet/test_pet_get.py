@@ -1,23 +1,23 @@
-from tests.payloads.pet_payloads import CREATE_PET
 from src.pet_utils import Pet
 import pytest
+from src.models.pet_models import PetResponse
 
 @pytest.mark.smoke
-def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup):
+def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup, new_pet):
     pet_id = generate_pet_id()
-    CREATE_PET.id = pet_id
-    init_pet(CREATE_PET)
+    new_pet.id = pet_id
+    init_pet(new_pet)
 
     response = pet.get_pet(pet_id)
-    response_body = response.json()
+    pet_data = PetResponse.model_validate(response.json())
 
     assert response.ok
-    assert response_body["id"] == pet_id
-    assert response_body["category"] == CREATE_PET.category
-    assert response_body["name"] == CREATE_PET.name
-    assert response_body["photoUrls"] == CREATE_PET.photoUrls
-    assert response_body["tags"] == CREATE_PET.tags
-    assert response_body["status"] == CREATE_PET.status
+    assert pet_data.id == pet_id
+    assert pet_data.category == new_pet.category
+    assert pet_data.name == new_pet.name
+    assert pet_data.photoUrls == new_pet.photoUrls
+    assert pet_data.tags == new_pet.tags
+    assert pet_data.status == new_pet.status
 
     pet_cleanup(pet_id)
 

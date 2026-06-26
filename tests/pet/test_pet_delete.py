@@ -1,15 +1,15 @@
-from tests.payloads.pet_payloads import CREATE_PET
 from src.pet_utils import Pet
 import pytest
+from src.models.pet_models import PetResponse
 
 @pytest.mark.smoke
-def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id):
+def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id, new_pet):
     pet_id = generate_pet_id()
-    CREATE_PET.id = pet_id
-    created_pet = init_pet(CREATE_PET)
-    created_pet_body = created_pet.json()
+    new_pet.id = pet_id
+    created_pet = init_pet(new_pet)
+    pet_data = PetResponse.model_validate(created_pet.json())
 
-    assert created_pet_body["id"] == pet_id
+    assert pet_data.id == pet_id
 
     response = pet.delete_pet(pet_id)
     response_body = response.json()
