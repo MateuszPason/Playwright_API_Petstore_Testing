@@ -15,22 +15,23 @@ This project validates the Swagger Petstore API across both the `/v2/pet` and `/
 ├── src/
 │   ├── __init__.py
 │   ├── pet_utils.py          # Pet API client wrapper (create, get, update, delete, upload)
-│   └── store_utils.py        # Store API client wrapper (inventory)
+│   ├── store_utils.py        # Store API client wrapper (inventory, orders)
+│   └── models/
+│       ├── __init__.py
+│       ├── pet_models.py     # Pydantic models: PetPayload, PetResponse, Category, Tag
+│       └── store_models.py   # Pydantic models: OrderResponse
 ├── tests/
-│   ├── conftest.py            # Shared pytest fixtures (session context, pet client, helpers)
+│   ├── conftest.py            # Shared pytest fixtures (session context, clients, helpers)
 │   ├── assets/
 │   │   └── images/            # Sample images used in upload tests
-│   ├── payloads/
-│   │   ├── __init__.py
-│   │   └── pet_payloads.py    # Reusable PetPayload dataclass and preset payloads
-│   └── pet/
-│       ├── test_pet_create.py     # POST /v2/pet
-│       ├── test_pet_delete.py     # DELETE /v2/pet/{petId}
-│       ├── test_pet_get.py        # GET /v2/pet/{petId}
-│       ├── test_pet_image_upload.py  # POST /v2/pet/{petId}/uploadImage
-│       ├── test_pet_lifecycle.py  # End-to-end create → update → delete → verify
-│       ├── test_pet_status.py     # GET /v2/pet/findByStatus
-│       └── test_pet_update.py     # PUT /v2/pet
+│   ├── pet/
+│   │   ├── test_pet_create.py     # POST /v2/pet
+│   │   ├── test_pet_delete.py     # DELETE /v2/pet/{petId}
+│   │   ├── test_pet_get.py        # GET /v2/pet/{petId}
+│   │   ├── test_pet_image_upload.py  # POST /v2/pet/{petId}/uploadImage
+│   │   ├── test_pet_lifecycle.py  # End-to-end create → update → delete → verify
+│   │   ├── test_pet_status.py     # GET /v2/pet/findByStatus
+│   │   └── test_pet_update.py     # PUT /v2/pet
 │   └── store/
 │       ├── test_store_delete_order.py    # DELETE /v2/store/order/{orderId}
 │       ├── test_store_get.py             # GET /v2/store/inventory
@@ -135,18 +136,20 @@ pytest -v --log-cli-level=INFO
 
 ### `Pet` Client (`src/pet_utils.py`)
 
-A thin wrapper around Playwright's `APIRequestContext` that exposes one method per HTTP operation:
+A thin wrapper around Playwright's `APIRequestContext` that exposes one method per HTTP operation. `get_pet` and `delete_pet` validate that `pet_id` is a positive integer and raise `ValueError` otherwise.
 
 | Method | HTTP Verb | Description |
 |--------|-----------|-------------|
-| `create_pet(endpoint, **kwargs)` | POST | Add a new pet |
-| `get_pet(endpoint, **kwargs)` | GET | Retrieve a pet by ID |
-| `update_pet(endpoint, **kwargs)` | PUT | Update an existing pet |
-| `delete_pet(endpoint, **kwargs)` | DELETE | Remove a pet |
-| `get_pet_by_status(endpoint, status, **kwargs)` | GET | Find pets by status |
+| `create_pet(**kwargs)` | POST | Add a new pet |
+| `get_pet(pet_id, **kwargs)` | GET | Retrieve a pet by ID |
+| `update_pet(**kwargs)` | PUT | Update an existing pet |
+| `delete_pet(pet_id, **kwargs)` | DELETE | Remove a pet |
+| `get_pet_by_status(status=None, **kwargs)` | GET | Find pets by status |
 | `upload_image(endpoint, file_path, additional_metadata, **kwargs)` | POST | Upload a pet image |
 
 ### `Store` Client (`src/store_utils.py`)
+
+`get_order_by_id`, `place_an_order`, and `delete_an_order` validate their inputs and raise `ValueError` on invalid values.
 
 | Method | HTTP Verb | Description |
 |--------|-----------|-------------|
@@ -155,6 +158,25 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `place_an_order(order_id, pet_id, quantity, ship_date, status, complete, **kwargs)` | POST | Place a new store order with input validation |
 | `delete_an_order(order_id)` | DELETE | Delete a store order by ID |
 
+### Models (`src/models/`)
+
+All models are [Pydantic](https://docs.pydantic.dev/) `BaseModel` subclasses used for payload construction and response validation.
+
+**`pet_models.py`**
+
+| Model | Description |
+|-------|-------------|
+| `Category` | Pet category with `id` and `name` |
+| `Tag` | Pet tag with `id` and `name` |
+| `PetPayload` | Full pet request schema: `id`, `category`, `name`, `photoUrls`, `tags`, `status` |
+| `PetResponse` | Expected pet response schema mirroring the Petstore API response shape |
+
+**`store_models.py`**
+
+| Model | Description |
+|-------|-------------|
+| `OrderResponse` | Expected order response schema: `id`, `petId`, `quantity`, `shipDate`, `status`, `complete` |
+
 ### Fixtures (`tests/conftest.py`)
 
 | Fixture | Scope | Description |
@@ -162,6 +184,8 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `api_request_context` | session | Shared Playwright API context using `BASE_URL` from `.env` |
 | `pet` | function | `Pet` client instance |
 | `store` | function | `Store` client instance |
+| `new_pet` | function | Default `PetPayload` instance for create scenarios |
+| `updated_pet` | function | `PetPayload` instance with modified fields for update scenarios |
 | `generate_pet_id` | function | Generates a random integer pet ID via UUID |
 | `init_pet` | function | Helper to create a pet from a `PetPayload` |
 | `pet_cleanup` | function | Helper to delete a pet by ID |
@@ -171,13 +195,6 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `create_order` | function | Helper to place a store order via `Store.place_an_order` |
 | `order_cleanup` | function | Helper to delete a store order by ID |
 
-### Payloads (`tests/payloads/pet_payloads.py`)
-
-`PetPayload` is a `dataclass` defining the full pet schema. Two preset instances are provided:
-
-- `CREATE_PET` — baseline payload for creating a test pet
-- `UPDATE_PET` — payload with modified fields for update scenarios
-
 ## Dependencies
 
 | Package | Purpose |
@@ -186,6 +203,8 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `pytest` | Test runner and fixture engine |
 | `pytest-playwright` | Playwright integration for pytest |
 | `pytest-base-url` | `--base-url` CLI flag support |
+| `pytest-html` | HTML report generation |
+| `pydantic` | Payload and response model validation |
 | `python-dotenv` | `.env` file loading |
 | `requests` | Supplementary HTTP utilities |
 
