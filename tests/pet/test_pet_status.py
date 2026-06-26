@@ -1,6 +1,6 @@
 from src.pet_utils import Pet
-from tests.payloads.pet_payloads import CREATE_PET
 import pytest
+from src.models.pet_models import PetResponse
 
 
 @pytest.mark.regression
@@ -8,20 +8,20 @@ import pytest
         "status",
         ["available", "pending", "sold"]
 )
-def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status):
+def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status, new_pet):
     
     pet_id = generate_pet_id()
-    CREATE_PET.id = pet_id
-    CREATE_PET.status = status
-    init_pet(CREATE_PET)
+    new_pet.id = pet_id
+    new_pet.status = status
+    init_pet(new_pet)
 
     available_pets = pet.get_pet_by_status(status)
     available_pets_body = available_pets.json()
 
-    pet_to_assert = next((pet for pet in available_pets_body if pet.get("id") == pet_id), None)
+    pet_to_assert = PetResponse.model_validate(next((pet for pet in available_pets_body if pet.get("id") == pet_id), None))
 
     assert available_pets.ok
-    assert pet_to_assert["status"] == status
+    assert pet_to_assert.status == status
 
     pet_cleanup(pet_id)
 

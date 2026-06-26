@@ -3,10 +3,10 @@ from playwright.sync_api import Playwright, APIRequestContext
 from src.pet_utils import Pet
 from src.store_utils import Store
 import uuid
-from tests.payloads.pet_payloads import PetPayload
 import secrets
 import string
 from datetime import datetime, timezone
+from src.models.pet_models import PetPayload, Category, Tag
 
 @pytest.fixture(scope='session')
 def api_request_context(playwright: Playwright, base_url: str):
@@ -31,9 +31,31 @@ def pet_cleanup(pet: Pet):
     return _cleanup
 
 @pytest.fixture
+def new_pet():
+    return PetPayload(
+        id=None,
+        category=Category(id=101, name="TestingPet"),
+        name="TestingPet101",
+        photoUrls=[""],
+        tags=[Tag(id=101, name="101Pet")],
+        status="available",
+    )
+
+@pytest.fixture
+def updated_pet():
+    return PetPayload(
+        id=None,
+        category=Category(id=102, name="TestingPet - Updated"),
+        name="TestingPet101 - Updated",
+        photoUrls=["https://testphoto.jpg"],
+        tags=[Tag(id=102, name="101Pet - Updated")],
+        status="available - Updated",
+    )
+
+@pytest.fixture
 def init_pet(pet: Pet):
     def _init(pet_data: PetPayload):
-        return pet.create_pet(data=pet_data.__dict__)
+        return pet.create_pet(data=pet_data.model_dump())
     return _init
 
 @pytest.fixture

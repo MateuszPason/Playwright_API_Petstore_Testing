@@ -1,31 +1,29 @@
 from src.pet_utils import Pet
-from tests.payloads.pet_payloads import CREATE_PET, UPDATE_PET
 import pytest
+from src.models.pet_models import PetResponse
 
 
 @pytest.mark.regression
-def test_pet_lifecycle(pet: Pet, generate_pet_id):
+def test_pet_lifecycle(pet: Pet, generate_pet_id, new_pet, updated_pet):
     pet_id = generate_pet_id()
-    CREATE_PET.id = pet_id
-    UPDATE_PET.id = pet_id
+    new_pet.id = pet_id
+    updated_pet.id = pet_id
 
     # Remove pet with generated pet_id - Make sure it doesn't exist before create/update
     pet.delete_pet(pet_id)
 
-    response_create_pet = pet.create_pet(data=CREATE_PET.__dict__)
-    response_create_pet_body = response_create_pet.json()
-    assert "id" in response_create_pet_body
-    assert response_create_pet_body["id"] == pet_id
+    response_create_pet = pet.create_pet(data=new_pet.model_dump())
+    pet_data_create = PetResponse.model_validate(response_create_pet.json())
+    assert pet_data_create.id == pet_id
 
-    response_update_pet = pet.update_pet(data=UPDATE_PET.__dict__)
-    response_update_pet_body = response_update_pet.json()
-    assert "id" in response_update_pet_body
-    assert response_update_pet_body["id"] == pet_id
-    assert response_update_pet_body["category"] == UPDATE_PET.category
-    assert response_update_pet_body["name"] == UPDATE_PET.name
-    assert response_update_pet_body["photoUrls"] == UPDATE_PET.photoUrls
-    assert response_update_pet_body["tags"] == UPDATE_PET.tags
-    assert response_update_pet_body["status"] == UPDATE_PET.status
+    response_update_pet = pet.update_pet(data=updated_pet.model_dump())
+    pet_data_update = PetResponse.model_validate(response_update_pet.json())
+    assert pet_data_update.id == pet_id
+    assert pet_data_update.category == updated_pet.category
+    assert pet_data_update.name == updated_pet.name
+    assert pet_data_update.photoUrls == updated_pet.photoUrls
+    assert pet_data_update.tags == updated_pet.tags
+    assert pet_data_update.status == updated_pet.status
 
     response_delete_pet = pet.delete_pet(pet_id)
     assert response_delete_pet.ok
