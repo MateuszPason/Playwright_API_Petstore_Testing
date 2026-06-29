@@ -2,11 +2,13 @@ import pytest
 from playwright.sync_api import Playwright, APIRequestContext
 from src.pet_utils import Pet
 from src.store_utils import Store
+from src.user_utils import User
 import uuid
 import secrets
 import string
 from datetime import datetime, timezone
 from src.models.pet_models import PetPayload, Category, Tag
+from src.models.user_models import UserPayload
 
 @pytest.fixture(scope='session')
 def api_request_context(playwright: Playwright, base_url: str):
@@ -25,10 +27,24 @@ def store(api_request_context: APIRequestContext):
     return Store(api_request_context)
 
 @pytest.fixture
+def user(api_request_context: APIRequestContext):
+    return User(api_request_context)
+
+@pytest.fixture
 def pet_cleanup(pet: Pet):
     def _cleanup(pet_id: int):
         return pet.delete_pet(pet_id)
     return _cleanup
+
+@pytest.fixture
+def user_cleanup(user: User):
+    usernames = []
+    def _cleanup(username: str):
+        usernames.append(username)
+    yield _cleanup
+
+    for username in usernames:
+        user.delete_user(username)
 
 @pytest.fixture
 def new_pet():
@@ -53,13 +69,32 @@ def updated_pet():
     )
 
 @pytest.fixture
+def new_user():
+    return UserPayload(
+        id=None,
+        username="TestingUN",
+        firstName="TestingFN",
+        lastName="TestingLN",
+        email="test@test.com",
+        password="test1234",
+        phone="123123123",
+        userStatus=1
+    )
+
+@pytest.fixture
 def init_pet(pet: Pet):
     def _init(pet_data: PetPayload):
         return pet.create_pet(data=pet_data.model_dump())
     return _init
 
 @pytest.fixture
-def generate_pet_id():
+def init_user(user: User):
+    def _init(user_data: UserPayload):
+        return user.create_user(data=user_data.model_dump())
+    return _init
+
+@pytest.fixture
+def generate_id():
     def _generate():
         return int(uuid.uuid4().int % 100000)
     return _generate

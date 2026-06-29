@@ -6,8 +6,8 @@ import pytest
         "file_name",
         ["solid_blue.jpg", "solid_blue.png"]
 )
-def test_successful_image_upload(pet: Pet, generate_pet_id, init_pet, file_name, pet_cleanup, new_pet):
-    pet_id = generate_pet_id()
+def test_successful_image_upload(pet: Pet, generate_id, init_pet, file_name, pet_cleanup, new_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     init_pet(new_pet)
 
@@ -21,8 +21,8 @@ def test_successful_image_upload(pet: Pet, generate_pet_id, init_pet, file_name,
     # At the time of writing this test, pet object didn't return image file. 
 
 @pytest.mark.regression
-def test_no_image_file(pet: Pet, generate_pet_id, init_pet, pet_cleanup, new_pet):
-    pet_id = generate_pet_id()
+def test_no_image_file(pet: Pet, generate_id, init_pet, pet_cleanup, new_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     init_pet(new_pet)
 

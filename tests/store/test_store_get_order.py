@@ -2,9 +2,9 @@ from src.store_utils import Store
 import pytest
 
 @pytest.mark.smoke
-def test_get_an_existing_order(store: Store, generate_order_id, generate_pet_id, ship_date, create_order, order_cleanup):
+def test_get_an_existing_order(store: Store, generate_order_id, generate_id, ship_date, create_order, order_cleanup):
     order_id = generate_order_id()
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
 
     create_order(order_id, pet_id, 1, ship_date, "placed", True)
 
@@ -27,9 +27,9 @@ def test_invalid_order_id(store: Store, incorrect_order_id):
         store.get_order_by_id(incorrect_order_id)
 
 @pytest.mark.regression
-def test_get_non_existing_order(store: Store, generate_order_id, generate_pet_id, ship_date, create_order, order_cleanup):
+def test_get_non_existing_order(store: Store, generate_order_id, generate_id, ship_date, create_order, order_cleanup):
     order_id = generate_order_id()
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
 
     create_order(order_id, pet_id, 1, ship_date, "placed", True)
     order_cleanup(order_id)

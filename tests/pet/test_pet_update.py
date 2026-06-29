@@ -4,8 +4,8 @@ from src.models.pet_models import PetResponse
 
 
 @pytest.mark.smoke
-def test_successful_pet_update(pet: Pet, init_pet, generate_pet_id, new_pet, updated_pet):
-    pet_id = generate_pet_id()
+def test_successful_pet_update(pet: Pet, init_pet, generate_id, new_pet, updated_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     init_pet(new_pet)
     updated_pet.id = pet_id
