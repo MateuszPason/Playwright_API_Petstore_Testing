@@ -8,9 +8,9 @@ from src.models.pet_models import PetResponse
         "status",
         ["available", "pending", "sold"]
 )
-def test_correct_status(pet: Pet, init_pet, generate_pet_id, pet_cleanup, status, new_pet):
+def test_correct_status(pet: Pet, init_pet, generate_id, pet_cleanup, status, new_pet):
     
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
     new_pet.id = pet_id
     new_pet.status = status
     init_pet(new_pet)

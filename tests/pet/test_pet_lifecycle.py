@@ -4,8 +4,8 @@ from src.models.pet_models import PetResponse
 
 
 @pytest.mark.regression
-def test_pet_lifecycle(pet: Pet, generate_pet_id, new_pet, updated_pet):
-    pet_id = generate_pet_id()
+def test_pet_lifecycle(pet: Pet, generate_id, new_pet, updated_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     updated_pet.id = pet_id
 

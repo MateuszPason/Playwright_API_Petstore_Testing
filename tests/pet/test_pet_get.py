@@ -3,8 +3,8 @@ import pytest
 from src.models.pet_models import PetResponse
 
 @pytest.mark.smoke
-def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup, new_pet):
-    pet_id = generate_pet_id()
+def test_get_existing_pet(pet: Pet, init_pet, generate_id, pet_cleanup, new_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     init_pet(new_pet)
 
@@ -22,8 +22,8 @@ def test_get_existing_pet(pet: Pet, init_pet, generate_pet_id, pet_cleanup, new_
     pet_cleanup(pet_id)
 
 @pytest.mark.regression
-def test_get_not_existing_pet(pet: Pet, generate_pet_id, pet_cleanup):
-    pet_id = generate_pet_id()
+def test_get_not_existing_pet(pet: Pet, generate_id, pet_cleanup):
+    pet_id = generate_id()
     pet_cleanup(pet_id)
 
     response = pet.get_pet(pet_id)

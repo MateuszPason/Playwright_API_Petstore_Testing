@@ -2,9 +2,9 @@ from src.store_utils import Store
 import pytest
 
 @pytest.mark.smoke
-def test_successful_order_delete(store: Store, generate_order_id, generate_pet_id, ship_date, create_order):
+def test_successful_order_delete(store: Store, generate_order_id, generate_id, ship_date, create_order):
     order_id = generate_order_id()
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
 
     create_order(order_id, pet_id, 1, ship_date, "placed", False)
 
@@ -20,9 +20,9 @@ def test_incorrect_order_id(store: Store, incorrect_order_id):
         store.delete_an_order(incorrect_order_id)
 
 @pytest.mark.regression
-def test_delete_non_existing_order(store: Store, generate_order_id, generate_pet_id, ship_date, create_order):
+def test_delete_non_existing_order(store: Store, generate_order_id, generate_id, ship_date, create_order):
     order_id = generate_order_id()
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
 
     create_order(order_id, pet_id, 1, ship_date, "placed", True)
     first_delete = store.delete_an_order(order_id)

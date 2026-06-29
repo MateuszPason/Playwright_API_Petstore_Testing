@@ -3,9 +3,9 @@ from copy import deepcopy
 from src.models.pet_models import PetResponse
 
 def test_existing_status(
-    store: Store, generate_pet_id, generate_random_string, init_pet, pet_cleanup, new_pet
+    store: Store, generate_id, generate_random_string, init_pet, pet_cleanup, new_pet
 ):
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
     pet_status = generate_random_string()
 
     new_pet.id = pet_id
@@ -33,10 +33,10 @@ def test_non_existing_status(store: Store, generate_random_string):
 
 
 def test_accumulate_pets_with_same_status(
-    store: Store, init_pet, pet_cleanup, generate_pet_id, generate_random_string, new_pet
+    store: Store, init_pet, pet_cleanup, generate_id, generate_random_string, new_pet
 ):
-    pet_id_one = generate_pet_id()
-    pet_id_two = generate_pet_id()
+    pet_id_one = generate_id()
+    pet_id_two = generate_id()
     pet_status = generate_random_string()
 
     pet_payload_1 = deepcopy(new_pet)
@@ -67,9 +67,9 @@ def test_response_structure(store: Store):
     assert all([0 < value for value in store_response_body.values()])
 
 def test_consistent_response(
-    store: Store, init_pet, pet_cleanup, generate_pet_id, generate_random_string, new_pet
+    store: Store, init_pet, pet_cleanup, generate_id, generate_random_string, new_pet
 ):
-    pet_id = generate_pet_id()
+    pet_id = generate_id()
     unique_status = generate_random_string()
 
     pet_payload = deepcopy(new_pet)

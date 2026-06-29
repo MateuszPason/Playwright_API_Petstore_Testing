@@ -3,8 +3,8 @@ import pytest
 from src.models.pet_models import PetResponse
 
 @pytest.mark.smoke
-def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id, new_pet):
-    pet_id = generate_pet_id()
+def test_delete_existing_pet(pet: Pet, init_pet, generate_id, new_pet):
+    pet_id = generate_id()
     new_pet.id = pet_id
     created_pet = init_pet(new_pet)
     pet_data = PetResponse.model_validate(created_pet.json())
@@ -18,8 +18,8 @@ def test_delete_existing_pet(pet: Pet, init_pet, generate_pet_id, new_pet):
     assert response_body["message"] == str(pet_id)
 
 @pytest.mark.regression
-def test_delete_not_existing_pet(pet: Pet, generate_pet_id):
-    pet_id = generate_pet_id()
+def test_delete_not_existing_pet(pet: Pet, generate_id):
+    pet_id = generate_id()
 
     get_response = pet.get_pet(pet_id)
 
