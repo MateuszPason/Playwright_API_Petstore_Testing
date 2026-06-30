@@ -32,9 +32,13 @@ def user(api_request_context: APIRequestContext):
 
 @pytest.fixture
 def pet_cleanup(pet: Pet):
+    pet_ids = []
     def _cleanup(pet_id: int):
-        return pet.delete_pet(pet_id)
-    return _cleanup
+        pet_ids.append(pet_id)
+    yield _cleanup
+
+    for pet_id in pet_ids:
+        pet.delete_pet(pet_id)
 
 @pytest.fixture
 def user_cleanup(user: User):
@@ -137,6 +141,10 @@ def create_order(store: Store):
 
 @pytest.fixture
 def order_cleanup(store: Store):
+    order_ids = []
     def _cleanup(order_id):
-        return store.delete_an_order(order_id)
-    return _cleanup
+        order_ids.append(order_id)
+    yield _cleanup
+
+    for order_id in order_ids:
+        store.delete_an_order(order_id)
