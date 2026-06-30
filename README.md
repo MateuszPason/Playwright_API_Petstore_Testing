@@ -6,7 +6,7 @@ Automated API test suite for the [Swagger Petstore](https://petstore.swagger.io/
 
 ## Overview
 
-This project validates the Swagger Petstore API across both the `/v2/pet` and `/v2/store` endpoints, covering the full pet lifecycle, status filtering, image upload, and store inventory checks.
+This project validates the Swagger Petstore API across the `/v2/pet`, `/v2/store`, and `/v2/user` endpoints, covering the full pet lifecycle, status filtering, image upload, store inventory and order management, and complete user management including login/logout session handling.
 
 ## Project Structure
 
@@ -16,10 +16,12 @@ This project validates the Swagger Petstore API across both the `/v2/pet` and `/
 │   ├── __init__.py
 │   ├── pet_utils.py          # Pet API client wrapper (create, get, update, delete, upload)
 │   ├── store_utils.py        # Store API client wrapper (inventory, orders)
+│   ├── user_utils.py         # User API client wrapper (create, get, update, delete, login, logout)
 │   └── models/
 │       ├── __init__.py
 │       ├── pet_models.py     # Pydantic models: PetPayload, PetResponse, Category, Tag
-│       └── store_models.py   # Pydantic models: OrderResponse
+│       ├── store_models.py   # Pydantic models: OrderResponse
+│       └── user_models.py    # Pydantic models: UserPayload, UserResponse
 ├── tests/
 │   ├── conftest.py            # Shared pytest fixtures (session context, clients, helpers)
 │   ├── assets/
@@ -32,12 +34,18 @@ This project validates the Swagger Petstore API across both the `/v2/pet` and `/
 │   │   ├── test_pet_lifecycle.py  # End-to-end create → update → delete → verify
 │   │   ├── test_pet_status.py     # GET /v2/pet/findByStatus
 │   │   └── test_pet_update.py     # PUT /v2/pet
-│   └── store/
-│       ├── test_store_delete_order.py    # DELETE /v2/store/order/{orderId}
-│       ├── test_store_get.py             # GET /v2/store/inventory
-│       ├── test_store_get_order.py       # GET /v2/store/order/{orderId}
-│       └── test_store_place_an_order.py  # POST /v2/store/order
-├── .env                       # Environment variables (not committed)
+│   ├── store/
+│   │   ├── test_store_delete_order.py    # DELETE /v2/store/order/{orderId}
+│   │   ├── test_store_get.py             # GET /v2/store/inventory
+│   │   ├── test_store_get_order.py       # GET /v2/store/order/{orderId}
+│   │   └── test_store_place_an_order.py  # POST /v2/store/order
+│   └── user/
+│       ├── test_user_create.py    # POST /v2/user
+│       ├── test_user_delete.py    # DELETE /v2/user/{username}
+│       ├── test_user_get.py       # GET /v2/user/{username}
+│       ├── test_user_login.py     # GET /v2/user/login
+│       ├── test_user_logout.py    # GET /v2/user/logout
+│       └── test_user_update.py    # PUT /v2/user/{username}
 ├── .gitignore
 └── requirements.txt
 ```
@@ -72,13 +80,6 @@ This project validates the Swagger Petstore API across both the `/v2/pet` and `/
    playwright install
    ```
 
-5. **Configure environment variables:**
-
-   Create a `.env` file in the project root with the API base URL used by the Playwright request context:
-   ```
-   BASE_URL=https://petstore.swagger.io
-   ```
-
 ## Running Tests
 
 **Run all tests:**
@@ -94,6 +95,21 @@ pytest tests/pet
 **Run only store tests:**
 ```bash
 pytest tests/store
+```
+
+**Run only user tests:**
+```bash
+pytest tests/user
+```
+
+**Run smoke tests only:**
+```bash
+pytest -m smoke
+```
+
+**Run regression tests only:**
+```bash
+pytest -m regression
 ```
 
 **Run a specific test file:**
@@ -131,6 +147,12 @@ pytest -v --log-cli-level=INFO
 | `test_store_get_order.py` | `GET /v2/store/order/{orderId}` | Existing order (200), non-existing order (404), invalid order ID (ValueError) |
 | `test_store_place_an_order.py` | `POST /v2/store/order` | Successful placement across all status/complete combos, invalid order ID / pet ID / quantity / ship date / status / complete (ValueError) |
 | `test_store_delete_order.py` | `DELETE /v2/store/order/{orderId}` | Successful delete (200), delete non-existing order (404), invalid order ID (ValueError) |
+| `test_user_create.py` | `POST /v2/user` | Successful creation (200), response schema validation, persistence check, no body provided (415) |
+| `test_user_get.py` | `GET /v2/user/{username}` | Existing user (200), non-existing user (404), invalid username (ValueError) |
+| `test_user_update.py` | `PUT /v2/user/{username}` | Successful update with field verification, update non-existing user (xfail — broken endpoint returns 200) |
+| `test_user_delete.py` | `DELETE /v2/user/{username}` | Successful delete (200), response body check, delete non-existing user (404), invalid username (ValueError) |
+| `test_user_login.py` | `GET /v2/user/login` | Successful login (200), required response fields, `x-rate-limit` header, `x-expires-after` header, unique session token per login |
+| `test_user_logout.py` | `GET /v2/user/logout` | Successful logout (200) |
 
 ## Key Components
 
@@ -146,6 +168,19 @@ A thin wrapper around Playwright's `APIRequestContext` that exposes one method p
 | `delete_pet(pet_id, **kwargs)` | DELETE | Remove a pet |
 | `get_pet_by_status(status=None, **kwargs)` | GET | Find pets by status |
 | `upload_image(endpoint, file_path, additional_metadata, **kwargs)` | POST | Upload a pet image |
+
+### `User` Client (`src/user_utils.py`)
+
+`delete_user`, `get_user`, `update_user`, and `login_user` validate their inputs and raise `ValueError` on invalid values (empty or non-string username/password).
+
+| Method | HTTP Verb | Description |
+|--------|-----------|-------------|
+| `create_user(**kwargs)` | POST | Create a new user |
+| `get_user(username, **kwargs)` | GET | Retrieve a user by username |
+| `update_user(username, **kwargs)` | PUT | Update an existing user by username |
+| `delete_user(username, **kwargs)` | DELETE | Remove a user by username |
+| `login_user(username, password, **kwargs)` | GET | Log in and receive a session token |
+| `logout_user(**kwargs)` | GET | Log out the current session |
 
 ### `Store` Client (`src/store_utils.py`)
 
@@ -177,6 +212,13 @@ All models are [Pydantic](https://docs.pydantic.dev/) `BaseModel` subclasses use
 |-------|-------------|
 | `OrderResponse` | Expected order response schema: `id`, `petId`, `quantity`, `shipDate`, `status`, `complete` |
 
+**`user_models.py`**
+
+| Model | Description |
+|-------|-------------|
+| `UserPayload` | Full user request schema: `id`, `username`, `firstName`, `lastName`, `email`, `password`, `phone`, `userStatus` |
+| `UserResponse` | Expected user response schema mirroring the Petstore API response shape |
+
 ### Fixtures (`tests/conftest.py`)
 
 | Fixture | Scope | Description |
@@ -184,11 +226,16 @@ All models are [Pydantic](https://docs.pydantic.dev/) `BaseModel` subclasses use
 | `api_request_context` | session | Shared Playwright API context using `BASE_URL` from `.env` |
 | `pet` | function | `Pet` client instance |
 | `store` | function | `Store` client instance |
+| `user` | function | `User` client instance |
 | `new_pet` | function | Default `PetPayload` instance for create scenarios |
 | `updated_pet` | function | `PetPayload` instance with modified fields for update scenarios |
-| `generate_pet_id` | function | Generates a random integer pet ID via UUID |
+| `new_user` | function | Default `UserPayload` instance with a randomly generated username for create scenarios |
+| `updated_user` | function | `UserPayload` instance with modified fields for user update scenarios |
+| `generate_id` | function | Generates a random integer ID via UUID (used for both pet and user IDs) |
 | `init_pet` | function | Helper to create a pet from a `PetPayload` |
+| `init_user` | function | Helper to create a user from a `UserPayload` |
 | `pet_cleanup` | function | Helper to delete a pet by ID |
+| `user_cleanup` | function | Helper that collects usernames and deletes them all after the test |
 | `generate_random_string` | function | Generates random strings for pet status and inventory tests |
 | `generate_order_id` | function | Generates a random integer order ID (11–1000) |
 | `ship_date` | function | Returns current UTC timestamp in ISO-8601 format for use in order payloads |
@@ -210,9 +257,20 @@ All models are [Pydantic](https://docs.pydantic.dev/) `BaseModel` subclasses use
 
 See [requirements.txt](requirements.txt) for pinned versions.
 
+## Test Markers
+
+Tests are tagged with pytest markers defined in `pytest.ini`:
+
+| Marker | Purpose |
+|--------|---------|
+| `smoke` | Sanity checks — fast, high-confidence tests covering the happy path of each endpoint |
+| `regression` | Full regression suite — covers edge cases, error paths, schema validation, and header assertions |
+
 ## Notes
 
-- Pet IDs are randomly generated per test run using UUID to minimise collisions against a shared public API.
-- Tests that create pets include cleanup calls to avoid polluting the Petstore sandbox.
+- Pet and user IDs are randomly generated per test run using UUID to minimise collisions against a shared public API.
+- Tests that create pets or users include cleanup calls to avoid polluting the Petstore sandbox.
+- The `user_cleanup` fixture collects all usernames registered during a test and deletes them in bulk after the test completes.
 - Store inventory tests create temporary pets with random statuses so they can assert inventory counts deterministically.
 - The image upload test does not assert that the uploaded image is retrievable from the pet object, as the public Petstore API does not return image data in `GET /v2/pet/{petId}` responses at this time.
+- `test_update_non_existing_user` is marked `xfail` because the `PUT /v2/user/{username}` endpoint returns `200` for non-existing usernames instead of the expected `404`.
