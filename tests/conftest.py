@@ -72,13 +72,26 @@ def updated_pet():
 def new_user():
     return UserPayload(
         id=None,
-        username="TestingUN",
+        username=uuid.uuid4().hex[:10],
         firstName="TestingFN",
         lastName="TestingLN",
         email="test@test.com",
         password="test1234",
         phone="123123123",
         userStatus=1
+    )
+
+@pytest.fixture
+def updated_user():
+    return UserPayload(
+        id=None,
+        username=uuid.uuid4().hex[:10],
+        firstName="TestingFN - Updated",
+        lastName="TestingLN - Updated",
+        email="test+updated@test.com",
+        password="test1234Updated",
+        phone="321321321",
+        userStatus=2
     )
 
 @pytest.fixture

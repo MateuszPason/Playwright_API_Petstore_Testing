@@ -1,6 +1,8 @@
 from src.user_utils import User
 from src.models.user_models import UserResponse
+import pytest
 
+@pytest.mark.smoke
 def test_successful_user_create(user: User, generate_id, new_user, user_cleanup):
     user_id = generate_id()
     new_user.id = user_id
@@ -15,7 +17,7 @@ def test_successful_user_create(user: User, generate_id, new_user, user_cleanup)
     assert user_response_body["code"] == 200
     assert user_response_body["message"] == str(user_id)
 
-
+@pytest.mark.regression
 def test_create_user_response_schema(user: User, generate_id, new_user, user_cleanup):
     user_id = generate_id()
     new_user.id = user_id
@@ -32,6 +34,7 @@ def test_create_user_response_schema(user: User, generate_id, new_user, user_cle
     assert type(user_response_body["type"]) is str
     assert type(user_response_body["message"]) is str
 
+@pytest.mark.regression
 def test_create_user_persists(user: User, generate_id, new_user, user_cleanup):
     user_id = generate_id()
     new_user.id = user_id
@@ -51,6 +54,7 @@ def test_create_user_persists(user: User, generate_id, new_user, user_cleanup):
     assert get_user_response_body.phone == new_user.phone
     assert get_user_response_body.userStatus == new_user.userStatus
 
+@pytest.mark.regression
 def test_create_user_with_no_body(user: User):
     user_response = user.create_user()
 

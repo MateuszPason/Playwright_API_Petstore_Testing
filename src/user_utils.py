@@ -18,4 +18,17 @@ class User:
             raise ValueError("Incorrect username | Expected a non empty string")
         return self._request.get(f"/v2/user/{username}", **kwargs)
 
-    
+    def update_user(self, username, **kwargs):
+        if not isinstance(username, str) or not username.strip():
+            raise ValueError("Incorrect username | Expected a non empty string")
+        return self._request.put(f"/v2/user/{username}", **kwargs)
+
+    def login_user(self, username, password, **kwargs):
+        if not isinstance(username, str) or not username.strip():
+            raise ValueError("Incorrect username | Expected a non empty string")
+        if not isinstance(password, str) or not password.strip():
+            raise ValueError("Incorrect password | Expected a non empty string")
+        return self._request.get(f"/v2/user/login?username={username}&password={password}", **kwargs)
+
+    def logout_user(self, **kwargs):
+        return self._request.get("/v2/user/logout", **kwargs)
